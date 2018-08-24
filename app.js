@@ -369,6 +369,13 @@ function publish(topic, message, options){
   mqttClient.publish(topic, message, options);
 }
 
+function isAuthenticated(req, res, next) {
+  if(req.query.apiToken === process.env.API_TOKEN)
+    next();
+  
+  res.redirect('/');
+}
+
 app.get('/_ping', function(req, res){
   res.send('OK');
 })
@@ -377,11 +384,11 @@ app.get('/', function(req, res){
   res.sendfile('index.html');
 })
 
-app.get('/hubs', function(req, res){
+app.get('/hubs', isAuthenticated, function(req, res){
   res.json({hubs: Object.keys(harmonyHubClients)})
 })
 
-app.get('/hubs/:hubSlug/activities', function(req, res){
+app.get('/hubs/:hubSlug/activities', isAuthenticated, function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
 
@@ -392,7 +399,7 @@ app.get('/hubs/:hubSlug/activities', function(req, res){
   }
 })
 
-app.get('/hubs/:hubSlug/activities/:activitySlug/commands', function(req, res){
+app.get('/hubs/:hubSlug/activities/:activitySlug/commands', isAuthenticated, function(req, res){
   hubSlug = req.params.hubSlug
   activitySlug = req.params.activitySlug
   commands = activityCommandsBySlugs(req.params.hubSlug, req.params.activitySlug);
@@ -404,7 +411,7 @@ app.get('/hubs/:hubSlug/activities/:activitySlug/commands', function(req, res){
   }
 })
 
-app.get('/hubs/:hubSlug/devices', function(req, res){
+app.get('/hubs/:hubSlug/devices', isAuthenticated, function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
 
@@ -415,7 +422,7 @@ app.get('/hubs/:hubSlug/devices', function(req, res){
   }
 })
 
-app.get('/hubs/:hubSlug/devices/:deviceSlug/commands', function(req, res){
+app.get('/hubs/:hubSlug/devices/:deviceSlug/commands', isAuthenticated, function(req, res){
   hubSlug = req.params.hubSlug
   deviceSlug = req.params.deviceSlug
   device = deviceBySlugs(hubSlug, deviceSlug)
@@ -430,7 +437,7 @@ app.get('/hubs/:hubSlug/devices/:deviceSlug/commands', function(req, res){
   }
 })
 
-app.get('/hubs/:hubSlug/status', function(req, res){
+app.get('/hubs/:hubSlug/status', isAuthenticated, function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
 
@@ -441,7 +448,7 @@ app.get('/hubs/:hubSlug/status', function(req, res){
   }
 })
 
-app.get('/hubs/:hubSlug/commands', function(req, res){
+app.get('/hubs/:hubSlug/commands', isAuthenticated, function(req, res){
   hubSlug = req.params.hubSlug
   activitySlug = harmonyHubStates[hubSlug].current_activity.slug
 
@@ -453,7 +460,7 @@ app.get('/hubs/:hubSlug/commands', function(req, res){
   }
 })
 
-app.post('/hubs/:hubSlug/commands/:commandSlug', function(req, res){
+app.post('/hubs/:hubSlug/commands/:commandSlug', isAuthenticated, function(req, res){
   hubSlug = req.params.hubSlug
   activitySlug = harmonyHubStates[hubSlug].current_activity.slug
   var commandSlug = req.params.commandSlug
@@ -469,7 +476,7 @@ app.post('/hubs/:hubSlug/commands/:commandSlug', function(req, res){
   }
 })
 
-app.put('/hubs/:hubSlug/off', function(req, res){
+app.put('/hubs/:hubSlug/off', isAuthenticated, function(req, res){
   hubSlug = req.params.hubSlug
   harmonyHubClient = harmonyHubClients[hubSlug]
 
@@ -482,7 +489,7 @@ app.put('/hubs/:hubSlug/off', function(req, res){
 })
 
 // DEPRECATED
-app.post('/hubs/:hubSlug/start_activity', function(req, res){
+app.post('/hubs/:hubSlug/start_activity', isAuthenticated, function(req, res){
   activity = activityBySlugs(req.params.hubSlug, req.query.activity)
 
   if (activity) {
@@ -494,7 +501,7 @@ app.post('/hubs/:hubSlug/start_activity', function(req, res){
   }
 })
 
-app.post('/hubs/:hubSlug/activities/:activitySlug', function(req, res){
+app.post('/hubs/:hubSlug/activities/:activitySlug', isAuthenticated, function(req, res){
   activity = activityBySlugs(req.params.hubSlug, req.params.activitySlug)
 
   if (activity) {
@@ -506,7 +513,7 @@ app.post('/hubs/:hubSlug/activities/:activitySlug', function(req, res){
   }
 })
 
-app.post('/hubs/:hubSlug/devices/:deviceSlug/commands/:commandSlug', function(req, res){
+app.post('/hubs/:hubSlug/devices/:deviceSlug/commands/:commandSlug', isAuthenticated, function(req, res){
   command = commandBySlugs(req.params.hubSlug, req.params.deviceSlug, req.params.commandSlug)
 
   if (command) {
@@ -542,6 +549,6 @@ app.get('/hubs_for_index', function(req, res){
 })
 
 if (enableHTTPserver) {
-    console.log('Starting server on port: ', process.env.PORT || 8282);
-    app.listen(process.env.PORT || 8282)
+  console.log('Starting server on port: ', process.env.PORT || 8282);
+  app.listen(process.env.PORT || 8282)
 }
