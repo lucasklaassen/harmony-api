@@ -49,7 +49,7 @@ var hasHarmonyHubClient = function(req, res, next) {
     res.status(500).json({message: "No hubs available."})
   }
 }
-app.use(hasHarmonyHubClient)
+app.use(hasHarmonyHubClient);
 
 harmony(process.env.HARMONY_HUB_IP).then(function(client){
   console.log('connected to Harmony Hub');
