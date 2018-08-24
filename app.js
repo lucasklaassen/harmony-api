@@ -8,6 +8,7 @@ var bodyParser = require('body-parser')
 var parameterize = require('parameterize')
 
 var config = {
+  "enableHTTPserver": true,
   "mqtt_host": process.env.MQTT_HOST,
   "topic_namespace": process.env.TOPIC_NAMESPACE,
   "mqtt_options": {
@@ -541,5 +542,6 @@ app.get('/hubs_for_index', function(req, res){
 })
 
 if (enableHTTPserver) {
+    console.log('Starting server on port: ', process.env.PORT || 8282);
     app.listen(process.env.PORT || 8282)
 }
