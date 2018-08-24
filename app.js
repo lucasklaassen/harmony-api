@@ -7,8 +7,16 @@ var morgan = require('morgan')
 var bodyParser = require('body-parser')
 var parameterize = require('parameterize')
 
-var config_dir = process.env.CONFIG_DIR || './config'
-var config = require(config_dir + '/config.json');
+var config = {
+  "mqtt_host": process.env.MQTT_HOST,
+  "topic_namespace": process.env.TOPIC_NAMESPACE,
+  "mqtt_options": {
+    "port": process.env.PORT,
+    "username": process.env.USERNAME,
+    "password": process.env.PASSWORD,
+    "rejectUnauthorized": process.env.REJECT_UNAUTHORIZED
+  }
+}
 
 var harmony = require('harmonyhubjs-client')
 
@@ -25,13 +33,10 @@ var harmonyDevicesCache = {}
 var harmonyDeviceUpdateInterval = 1*60*1000 // 1 minute
 var harmonyDeviceUpdateTimers = {}
 
-var mqttClient = config.hasOwnProperty("mqtt_options") ?
-    mqtt.connect(config.mqtt_host, config.mqtt_options) :
-    mqtt.connect(config.mqtt_host);
+var mqttClient = mqtt.connect(config.mqtt_host, config.mqtt_options);
 var TOPIC_NAMESPACE = config.topic_namespace || "harmony-api";
 
-var enableHTTPserver = config.hasOwnProperty("enableHTTPserver") ?
-    config.enableHTTPserver : true;
+var enableHTTPserver = config.enableHTTPserver;
 
 var app = express()
 app.use(bodyParser.urlencoded({ extended: false }))

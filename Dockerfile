@@ -10,7 +10,6 @@ RUN rm -Rf node_modules
 RUN npm install
 
 COPY . /usr/src/app
-COPY ./config/config.sample.json /config/config.json
 
 ENV CONFIG_DIR /config
 
