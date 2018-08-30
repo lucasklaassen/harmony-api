@@ -370,9 +370,10 @@ function publish(topic, message, options){
 }
 
 function isAuthenticated(req, res, next) {
-  if(req.query.apiToken === process.env.API_TOKEN)
+  if(req.query.apiToken === process.env.API_TOKEN) {
     next();
-  
+    return;
+  }
   res.redirect('/');
 }
 
